@@ -3,6 +3,8 @@ This plugin monitors accounts on EOSIO blockchains to automatically export a CSV
 
 It will also track/report all altcoin transfers and adjust appropriately for that coin's precision to display the correct number of decimal places.
 
+Additionally, transfers between 2 accounts in the watch list will be tagged as a transfer instead of a buy/sell action (visible as deposit/withdrawal actions)
+
 ## Building the plugin [Install on your nodeos server]
 1. Copy `account_csv_plugin` folder to `<eosio-source-dir>/plugins/` You should now have `<eosio-source-dir>/plugins/account_csv_plugin`
 2. Add the following line to `<eosio-source-dir>/plugins/CMakeLists.txt` with other `add_subdirectory` items
