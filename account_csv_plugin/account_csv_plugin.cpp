@@ -177,6 +177,22 @@ namespace eosio {
               string quantity;
               string symbol;
               asset qty;
+              string buy; // Quantity in the 'buy' column
+              string sell; // Quantity in the 'sell' column
+              string buy_symbol; // Symbol for 'buy' column
+              string sell_symbol; // Symbol for 'sell' column
+
+              // Parse out memo field and add transaction ID to it for the final comment string
+              string memo;
+              fc::from_variant(action.action_data["memo"], memo);
+              string comment = tx.tx_id.str().c_str();
+              comment = comment + " | " + memo;
+
+              // Reformat timestamp to expected format "YYYY-MM-DD HH:MM:SS"
+              string timestamp = msg.timestamp;
+              replace( timestamp.begin(), timestamp.end(), 'T', ' ' );
+              timestamp = timestamp.substr(0, timestamp.size() - 4);
+
               fc::from_variant(action.action_data["from"], from);
               fc::from_variant(action.action_data["to"], to);
               fc::from_variant(action.action_data["quantity"], qty);
@@ -194,7 +210,25 @@ namespace eosio {
 
               for (const auto& account : watch_accounts) {
                 if (account.first == from || account.first == to) {
-                  *watch_accounts[account.first] << from << "," << to << "," << quantity <<  "," << symbol << std::endl;
+                  string type;
+                  if (account.first == from) {
+                    type = "Spend";
+                    sell = quantity;
+                    sell_symbol = symbol;
+                    buy = "";
+                    buy_symbol = "";
+                  }
+
+                  if (account.first == to) {
+                    type = "Income";
+                    buy = quantity;
+                    buy_symbol = symbol;
+                    sell = "";
+                    sell_symbol = "";
+                  }
+
+                  // Now write all of the data to the CSV file
+                  *watch_accounts[account.first] << std::endl << "\"" << type << "\"," << "\"" << buy << "\"," << "\"" << buy_symbol << "\"," << "\"" << sell << "\"," << "\"" << sell_symbol << "\",\"\",\"\",\"\",\"\"," << "\"" << comment << "\"," << "\"" << timestamp << "\"";
                   watch_accounts[account.first]->flush();
                 }
               }
@@ -274,9 +308,15 @@ namespace eosio {
              my->watch_accounts[account] = new std::ofstream;
              my->watch_accounts[account]->open(my->folder_path + "/" + account + ".csv", std::ios_base::app);
 
-             // If file is empty, print the CSV header
-             if (my->watch_accounts[account].peek() == std::ifstream::traits_type::eof()) {
-               *my->watch_accounts[account] << "from,to,quantity,symbol" << std::endl;
+             // If file is empty, print the CSV header in it
+             std::ifstream filestr;
+             filestr.open(my->folder_path + "/" + account + ".csv", std::ios::binary);
+             filestr.seekg(0, std::ios::end);
+             int flength = filestr.tellg();
+             filestr.close();
+
+             if (flength == 0) {
+               *my->watch_accounts[account] << "\"Type\",\"Buy\",\"Cur.\",\"Sell\",\"Cur.\",\"Fee\",\"Cur.\",\"Exchange\",\"Group\",\"Comment\",\"Date\"";
                my->watch_accounts[account]->flush();
              }
            }
