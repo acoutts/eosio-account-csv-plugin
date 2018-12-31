@@ -54,7 +54,7 @@ namespace eosio {
       fc::optional<boost::signals2::scoped_connection>                        applied_tx_conn;
       fc::optional<boost::signals2::scoped_connection>                        irreversible_block_conn;
       action_queue_t                                                          action_queue;
-      std::map<string, std::ofstream*>                                         watch_accounts;
+      std::map<string, std::ofstream*>                                        watch_accounts;
       string                                                                  folder_path;
 
       // Filter returns true if the watched account is either the sender or receiver of the action
@@ -166,7 +166,7 @@ namespace eosio {
       }
 
       void write_transactions(const message& msg) {
-        ilog("Inside write_transaction. Msg: ${i}", ("i", msg));
+        // ilog("Inside write_transaction. Msg: ${i}", ("i", msg));
 
         for (const auto& tx : msg.transactions) {
           for (const auto& action : tx.actions) {
@@ -200,13 +200,11 @@ namespace eosio {
               fc::from_variant(action.action_data["from"], from);
               fc::from_variant(action.action_data["to"], to);
               fc::from_variant(action.action_data["quantity"], qty);
-              ilog("precision: ${i}", ("i", qty.precision()));
-              ilog("qty: ${i}", ("i", qty.get_amount()));
-              ilog("decimals: ${i}", ("i", qty.decimals()));
+              // ilog("precision: ${i}", ("i", qty.precision()));
+              // ilog("qty: ${i}", ("i", qty.get_amount()));
+              // ilog("decimals: ${i}", ("i", qty.decimals()));
               dbl_quantity = double(qty.get_amount()) / double(qty.precision());
               symbol = qty.get_symbol().name();
-
-              ilog("dbl_quantity: ${i}", ("i", dbl_quantity));
 
               std::stringstream stream;
               stream << std::fixed << std::setprecision(qty.decimals()) << dbl_quantity;
@@ -221,6 +219,11 @@ namespace eosio {
                     sell_symbol = symbol;
                     buy = "";
                     buy_symbol = "";
+
+                    // Count as a transfer if it's going to an account we own
+                    if (watch_accounts.count(to)) {
+                      type = "Withdrawal";
+                    }
                   }
 
                   if (account.first == to) {
@@ -229,6 +232,11 @@ namespace eosio {
                     buy_symbol = symbol;
                     sell = "";
                     sell_symbol = "";
+
+                    // Count as a transfer if it's coming from an account we own
+                    if (watch_accounts.count(from)) {
+                      type = "Deposit";
+                    }
                   }
 
                   // Add trade groups for known entities
@@ -284,7 +292,6 @@ namespace eosio {
 
       // Use irreversible blocks to ensure no avoid having to handle forks
       void on_irreversible_block(const block_state_ptr& block_state) {
-        ilog("Irreversible block");
         fc::time_point btime = block_state->block->timestamp;
         message msg;
         transaction_id_type tx_id;
