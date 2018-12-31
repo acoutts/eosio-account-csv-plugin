@@ -181,6 +181,10 @@ namespace eosio {
               string sell; // Quantity in the 'sell' column
               string buy_symbol; // Symbol for 'buy' column
               string sell_symbol; // Symbol for 'sell' column
+              string exchange; // 'Exchange' column
+              string trade_group; // 'Group' column
+              string fee;
+              string fee_symbol;
 
               // Parse out memo field and add transaction ID to it for the final comment string
               string memo;
@@ -227,8 +231,45 @@ namespace eosio {
                     sell_symbol = "";
                   }
 
+                  // Add trade groups for known entities
+                  if (from == "newdexpocket" || to == "newdexpocket") {
+                    trade_group = "Newdex";
+                  }
+
+                  if (from == "betdicestake" || from == "betdicegroup" || from == "betdicelucky" || from == "betdicetoken" || to == "betdicestake" || to == "betdicegroup" || to == "betdicelucky" || to == "betdicetoken") {
+                    trade_group = "BetDice";
+                  }
+
+                  if (from == "betdividends" || from == "eosbetdice11" || to == "betdividends" || to == "eosbetdice11") {
+                    trade_group = "EOSBet";
+                  }
+
+                  if (from == "krakenkraken" || to == "krakenkraken") {
+                    trade_group = "Kraken";
+                  }
+
+                  if (from == "chintailease" || to == "chintailease") {
+                    trade_group = "Chintai";
+                  }
+
+                  if (from == "dexeoswallet" || to == "dexeoswallet") {
+                    trade_group = "DEXEOS";
+                  }
+
+                  if (from == "eos42mainacc" || from == "e42opcapital" || to == "eos42mainacc" || to == "e42opcapital") {
+                    trade_group = "EOS42";
+                  }
+
+                  if (from == "eosio.ram" || to == "eosio.ram") {
+                    trade_group = "EOS RAM";
+                  }
+
+                  if (from == "eosio.stake" || to == "eosio.stake") {
+                    trade_group = "EOS STAKING";
+                  }
+
                   // Now write all of the data to the CSV file
-                  *watch_accounts[account.first] << std::endl << "\"" << type << "\"," << "\"" << buy << "\"," << "\"" << buy_symbol << "\"," << "\"" << sell << "\"," << "\"" << sell_symbol << "\",\"\",\"\",\"\",\"\"," << "\"" << comment << "\"," << "\"" << timestamp << "\"";
+                  *watch_accounts[account.first] << std::endl << "\"" << type << "\",\"" << buy << "\",\"" << buy_symbol << "\",\"" << sell << "\",\"" << sell_symbol << "\",\"" << fee << "\",\"" << fee_symbol << "\",\"" << exchange << "\",\"" << trade_group << "\",\"" << comment << "\",\"" << timestamp << "\"";
                   watch_accounts[account.first]->flush();
                 }
               }
