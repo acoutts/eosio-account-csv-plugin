@@ -186,12 +186,6 @@ namespace eosio {
               string fee;
               string fee_symbol;
 
-              // Parse out memo field and add transaction ID to it for the final comment string
-              string memo;
-              fc::from_variant(action.action_data["memo"], memo);
-              string comment = tx.tx_id.str().c_str();
-              comment = comment + " | " + memo;
-
               // Reformat timestamp to expected format "YYYY-MM-DD HH:MM:SS"
               string timestamp = msg.timestamp;
               replace( timestamp.begin(), timestamp.end(), 'T', ' ' );
@@ -209,6 +203,12 @@ namespace eosio {
               std::stringstream stream;
               stream << std::fixed << std::setprecision(qty.decimals()) << dbl_quantity;
               quantity = stream.str();
+
+              // Parse out memo field and add transaction ID to it for the final comment string
+              string memo;
+              fc::from_variant(action.action_data["memo"], memo);
+              string comment = tx.tx_id.str().c_str();
+              comment = comment + " | Transfer From: " + from + " | To: " + to + " | Quantity: " + quantity + " | " + memo;
 
               for (const auto& account : watch_accounts) {
                 if (account.first == from || account.first == to) {
