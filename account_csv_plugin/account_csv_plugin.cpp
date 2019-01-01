@@ -290,7 +290,7 @@ namespace eosio {
         // Accepted block signal
       }
 
-      // Use irreversible blocks to ensure no avoid having to handle forks
+      // Use irreversible blocks to avoid having to handle forks
       void on_irreversible_block(const block_state_ptr& block_state) {
         fc::time_point btime = block_state->block->timestamp;
         message msg;

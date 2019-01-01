@@ -1,1 +1,3 @@
 "Type","Buy","Cur.","Sell","Cur.","Fee","Cur.","Exchange","Group","Comment","Date"
+"Deposit","1.2236","EOS","","","","","","","0b28999adc01770c35f3176e2a6e698e54198e1e820811320789fe53682d6d97 | Transfer From: useraccount1 | To: useraccount2 | Quantity: 1.2236 | ","2018-12-31 22:30:15"
+"Withdrawal","","","13.3305","EOS","","","","","2504ebc3254923cda30aa7e0c99f39dd773a7b2906f9e41b8cdc384db11ae0be | Transfer From: useraccount2 | To: useraccount1 | Quantity: 13.3305 | ","2018-12-31 22:30:36"
