@@ -62,6 +62,8 @@ namespace eosio {
         try {
           if (!act.act.authorization.size()) return false;
 
+          // Note: very naive approach to detecting the sender as we only check index 0 of the authorization vector.
+          // Todo: check the lengh of the authorization vector first and then check all of the authorizers for the account of interest
           if (watch_accounts.count(act.receipt.receiver.to_string()) || watch_accounts.count(act.act.authorization[0].actor.to_string())) {
             return true;
           } else {
@@ -183,8 +185,8 @@ namespace eosio {
               string sell_symbol; // Symbol for 'sell' column
               string exchange; // 'Exchange' column
               string trade_group; // 'Group' column
-              string fee;
-              string fee_symbol;
+              string fee; // 'Fee' column
+              string fee_symbol; // 'Fee' symbol column
 
               // Reformat timestamp to expected format "YYYY-MM-DD HH:MM:SS"
               string timestamp = msg.timestamp;
@@ -319,6 +321,9 @@ namespace eosio {
             tx.tx_id = tx_id;
             build_message(tx_id, tx);
             msg.transactions.push_back(tx);
+
+            // The queue should always clean up as long as Nodeos is running in Read Only mode and there's no speculative executions.
+            // Note: potential but highly unlikely and extremely slow memory leak here if Nodeos runs in head or speculative mode.
             action_queue.erase(action_queue.find(tx_id));
             ilog("[on_irreversible_block] Action queue size after removing item: ${i}", ("i",action_queue.size()));
 
