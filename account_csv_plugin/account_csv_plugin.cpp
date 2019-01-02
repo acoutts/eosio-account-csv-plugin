@@ -1,6 +1,6 @@
 /*********************
 * Andrew Coutts
-* Copyright 2018
+* 2019
 **********************/
 
 #include <eosio/account_csv_plugin/account_csv_plugin.hpp>

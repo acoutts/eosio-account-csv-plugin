@@ -1,6 +1,6 @@
 /*********************
 * Andrew Coutts
-* Copyright 2018
+* 2019
 **********************/
 #pragma once
 #include <appbase/application.hpp>
